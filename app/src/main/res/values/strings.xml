@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Network Tools</string>
+    <string name="host_hint">Enter IP or Hostname</string>
+    <string name="ping">Ping</string>
+    <string name="traceroute">Traceroute</string>
+    <string name="arp">ARP</string>
+</resources>
