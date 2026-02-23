@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
@@ -13,36 +14,58 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:padding="8dp"
-        android:background="#DDDDDD">
+        android:background="@color/light_gray"
+        android:elevation="4dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:textSize="18sp"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="?attr/colorPrimary"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp"
-            android:layout_gravity="center_horizontal"/>
+            android:padding="16dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_menu_ping"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/ping"
-            android:layout_marginBottom="8dp"/>
+            android:textAlignment="viewStart"
+            android:textAllCaps="false"
+            app:icon="@android:drawable/ic_menu_rotate"
+            app:iconPadding="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_menu_traceroute"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/traceroute"
-            android:layout_marginBottom="8dp"/>
+            android:textAlignment="viewStart"
+            android:textAllCaps="false"
+            app:icon="@android:drawable/ic_menu_directions"
+            app:iconPadding="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_menu_arp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/arp" />
+            android:text="@string/arp"
+            android:textAlignment="viewStart"
+            android:textAllCaps="false"
+            app:icon="@android:drawable/ic_menu_share"
+            app:iconPadding="16dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"/>
 
     </LinearLayout>
 
