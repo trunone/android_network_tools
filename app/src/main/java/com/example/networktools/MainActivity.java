@@ -12,17 +12,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Button btnLocalNetwork = findViewById(R.id.btn_nav_local_network);
         Button btnPing = findViewById(R.id.btn_nav_ping);
         Button btnTraceroute = findViewById(R.id.btn_nav_traceroute);
         Button btnArp = findViewById(R.id.btn_nav_arp);
 
+        btnLocalNetwork.setOnClickListener(v -> loadFragment(new LocalNetworkFragment()));
         btnPing.setOnClickListener(v -> loadFragment(new PingFragment()));
         btnTraceroute.setOnClickListener(v -> loadFragment(new TracerouteFragment()));
         btnArp.setOnClickListener(v -> loadFragment(new ArpFragment()));
 
         // Default fragment
         if (savedInstanceState == null) {
-            loadFragment(new PingFragment());
+            loadFragment(new LocalNetworkFragment());
         }
     }
 
