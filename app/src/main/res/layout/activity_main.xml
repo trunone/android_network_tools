@@ -3,37 +3,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center"
+    android:orientation="horizontal"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="32dp"/>
+    <!-- Left Menu -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="#DDDDDD">
 
-    <Button
-        android:id="@+id/btn_open_ping"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/ping"
-        android:layout_marginBottom="16dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"
+            android:layout_gravity="center_horizontal"/>
 
-    <Button
-        android:id="@+id/btn_open_traceroute"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/traceroute"
-        android:layout_marginBottom="16dp"/>
+        <Button
+            android:id="@+id/btn_menu_ping"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ping"
+            android:layout_marginBottom="8dp"/>
 
-    <Button
-        android:id="@+id/btn_open_arp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/arp" />
+        <Button
+            android:id="@+id/btn_menu_traceroute"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/traceroute"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btn_menu_arp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/arp" />
+
+    </LinearLayout>
+
+    <!-- Right Content -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:background="@android:color/white" />
 
 </LinearLayout>

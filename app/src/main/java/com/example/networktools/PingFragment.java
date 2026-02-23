@@ -1,26 +1,31 @@
 package com.example.networktools;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
-public class PingActivity extends AppCompatActivity {
+public class PingFragment extends Fragment {
 
     private EditText etHost, etCount, etTimeout;
     private TextView tvOutput;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ping);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_ping, container, false);
 
-        etHost = findViewById(R.id.et_host);
-        etCount = findViewById(R.id.et_count);
-        etTimeout = findViewById(R.id.et_timeout);
-        tvOutput = findViewById(R.id.tv_output);
-        Button btnRun = findViewById(R.id.btn_run);
+        etHost = view.findViewById(R.id.et_host);
+        etCount = view.findViewById(R.id.et_count);
+        etTimeout = view.findViewById(R.id.et_timeout);
+        tvOutput = view.findViewById(R.id.tv_output);
+        Button btnRun = view.findViewById(R.id.btn_run);
 
         btnRun.setOnClickListener(v -> {
             String host = etHost.getText().toString();
@@ -43,8 +48,12 @@ public class PingActivity extends AppCompatActivity {
 
             new Thread(() -> {
                 String result = NetworkUtils.ping(host, finalCount, finalTimeout);
-                runOnUiThread(() -> tvOutput.setText(result));
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> tvOutput.setText(result));
+                }
             }).start();
         });
+
+        return view;
     }
 }
