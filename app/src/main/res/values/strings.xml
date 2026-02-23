@@ -4,4 +4,10 @@
     <string name="ping">Ping</string>
     <string name="traceroute">Traceroute</string>
     <string name="arp">ARP</string>
+    <string name="count_hint">Count (default 4)</string>
+    <string name="timeout_hint">Timeout (default 1s)</string>
+    <string name="max_hops_hint">Max Hops (default 30)</string>
+    <string name="run_ping">Run Ping</string>
+    <string name="run_traceroute">Run Traceroute</string>
+    <string name="refresh_arp">Refresh ARP Table</string>
 </resources>
