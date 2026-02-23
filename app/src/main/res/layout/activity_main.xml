@@ -3,61 +3,51 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
+    android:orientation="horizontal"
     tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/et_host"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/host_hint"
-        android:inputType="textUri" />
-
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="#DDDDDD">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tools"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:padding="8dp"
+            android:layout_marginBottom="8dp"/>
 
         <Button
-            android:id="@+id/btn_ping"
-            android:layout_width="0dp"
+            android:id="@+id/btn_nav_ping"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/ping" />
+            android:text="Ping"/>
 
         <Button
-            android:id="@+id/btn_traceroute"
-            android:layout_width="0dp"
+            android:id="@+id/btn_nav_traceroute"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/traceroute" />
+            android:text="Traceroute"/>
 
         <Button
-            android:id="@+id/btn_arp"
-            android:layout_width="0dp"
+            android:id="@+id/btn_nav_arp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/arp" />
+            android:text="ARP"/>
 
     </LinearLayout>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp"
-        android:background="#EEE">
-
-        <TextView
-            android:id="@+id/tv_output"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:fontFamily="monospace"
-            android:textColor="@color/black"
-            android:textSize="12sp" />
-    </ScrollView>
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:background="#FFFFFF"/>
 
 </LinearLayout>

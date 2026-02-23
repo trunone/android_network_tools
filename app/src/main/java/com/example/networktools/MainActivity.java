@@ -1,53 +1,35 @@
 package com.example.networktools;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 public class MainActivity extends AppCompatActivity {
-
-    private EditText etHost;
-    private TextView tvOutput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        etHost = findViewById(R.id.et_host);
-        tvOutput = findViewById(R.id.tv_output);
+        Button btnPing = findViewById(R.id.btn_nav_ping);
+        Button btnTraceroute = findViewById(R.id.btn_nav_traceroute);
+        Button btnArp = findViewById(R.id.btn_nav_arp);
 
-        Button btnPing = findViewById(R.id.btn_ping);
-        Button btnTraceroute = findViewById(R.id.btn_traceroute);
-        Button btnArp = findViewById(R.id.btn_arp);
+        btnPing.setOnClickListener(v -> loadFragment(new PingFragment()));
+        btnTraceroute.setOnClickListener(v -> loadFragment(new TracerouteFragment()));
+        btnArp.setOnClickListener(v -> loadFragment(new ArpFragment()));
 
-        btnPing.setOnClickListener(v -> runTool("ping"));
-        btnTraceroute.setOnClickListener(v -> runTool("traceroute"));
-        btnArp.setOnClickListener(v -> runTool("arp"));
+        // Default fragment
+        if (savedInstanceState == null) {
+            loadFragment(new PingFragment());
+        }
     }
 
-    private void runTool(String tool) {
-        String host = etHost.getText().toString();
-        tvOutput.setText("Running " + tool + "...");
-
-        new Thread(() -> {
-            String result = "";
-            switch (tool) {
-                case "ping":
-                    result = NetworkUtils.ping(host);
-                    break;
-                case "traceroute":
-                    result = NetworkUtils.traceroute(host);
-                    break;
-                case "arp":
-                    result = NetworkUtils.getArpTable();
-                    break;
-            }
-            final String finalResult = result;
-            runOnUiThread(() -> tvOutput.setText(finalResult));
-        }).start();
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
     }
 }

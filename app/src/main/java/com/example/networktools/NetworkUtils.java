@@ -9,16 +9,24 @@ import java.util.List;
 public class NetworkUtils {
 
     public static String ping(String host) {
+        return ping(host, 4, 1);
+    }
+
+    public static String ping(String host, int count, int timeout) {
         if (host == null || host.trim().isEmpty()) {
             return "Please enter a host.";
         }
         if (!isValidHost(host)) {
             return "Invalid host. Only alphanumeric characters, dots, hyphens, and colons are allowed.";
         }
-        return executeCommand("ping -c 4 " + host);
+        return executeCommand("ping -c " + count + " -W " + timeout + " " + host);
     }
 
     public static String traceroute(String host) {
+        return traceroute(host, 30, 1);
+    }
+
+    public static String traceroute(String host, int maxHops, int timeout) {
         if (host == null || host.trim().isEmpty()) {
             return "Please enter a host.";
         }
@@ -28,9 +36,9 @@ public class NetworkUtils {
         StringBuilder result = new StringBuilder();
         result.append("Traceroute to ").append(host).append("\n");
 
-        for (int ttl = 1; ttl <= 30; ttl++) {
-            // Use ping with TTL. -c 1 (count 1), -t ttl, -W 1 (timeout 1 sec)
-            String command = "ping -c 1 -t " + ttl + " -W 1 " + host;
+        for (int ttl = 1; ttl <= maxHops; ttl++) {
+            // Use ping with TTL. -c 1 (count 1), -t ttl, -W timeout
+            String command = "ping -c 1 -t " + ttl + " -W " + timeout + " " + host;
             String output = executeCommand(command);
 
             if (output.contains("From")) {
