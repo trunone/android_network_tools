@@ -3,7 +3,12 @@ package com.example.networktools;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
 public class NetworkUtils {
@@ -112,6 +117,53 @@ public class NetworkUtils {
         // Method 2: ip neigh
         result.append("\nUsing 'ip neigh':\n");
         result.append(executeCommand("ip neigh"));
+
+        return result.toString();
+    }
+
+    public static String getLocalNetworkInfo() {
+        StringBuilder result = new StringBuilder();
+
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            if (interfaces != null) {
+                for (NetworkInterface networkInterface : Collections.list(interfaces)) {
+                    // Skip loopback and down interfaces for cleaner output, or keep all
+                    if (networkInterface.isLoopback() || !networkInterface.isUp()) {
+                        continue;
+                    }
+
+                    result.append("Interface: ").append(networkInterface.getName()).append("\n");
+                    result.append("Display Name: ").append(networkInterface.getDisplayName()).append("\n");
+
+                    byte[] mac = networkInterface.getHardwareAddress();
+                    if (mac != null) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < mac.length; i++) {
+                            sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? ":" : ""));
+                        }
+                        result.append("MAC: ").append(sb.toString()).append("\n");
+                    }
+
+                    List<InterfaceAddress> interfaceAddresses = networkInterface.getInterfaceAddresses();
+                    for (InterfaceAddress addr : interfaceAddresses) {
+                        InetAddress inetAddress = addr.getAddress();
+                        result.append("IP: ").append(inetAddress.getHostAddress());
+
+                        short prefixLength = addr.getNetworkPrefixLength();
+                        result.append("/").append(prefixLength);
+                        result.append("\n");
+                    }
+                    result.append("\n");
+                }
+            }
+        } catch (Exception e) {
+            result.append("Error getting network interfaces: ").append(e.getMessage()).append("\n");
+        }
+
+        result.append("----------------------------\n");
+        result.append("Routes (Gateway info):\n");
+        result.append(executeCommand("ip route"));
 
         return result.toString();
     }
