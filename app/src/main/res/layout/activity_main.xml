@@ -1,59 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:background="#DDDDDD">
+        android:orientation="vertical">
 
-        <TextView
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tools"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:padding="8dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/btn_nav_local_network"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Local Network"/>
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:title="Network Tools"
+                app:titleTextColor="?attr/colorOnPrimary" />
 
-        <Button
-            android:id="@+id/btn_nav_ping"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ping"/>
+        </com.google.android.material.appbar.AppBarLayout>
 
-        <Button
-            android:id="@+id/btn_nav_traceroute"
+        <FrameLayout
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Traceroute"/>
-
-        <Button
-            android:id="@+id/btn_nav_arp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ARP"/>
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="0dp"
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_weight="3"
-        android:background="#FFFFFF"/>
+        android:layout_gravity="start"
+        app:menu="@menu/nav_menu" />
 
-</LinearLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

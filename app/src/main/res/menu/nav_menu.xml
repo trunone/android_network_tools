@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_local_network"
+        android:title="Local Network" />
+    <item
+        android:id="@+id/nav_ping"
+        android:title="Ping" />
+    <item
+        android:id="@+id/nav_traceroute"
+        android:title="Traceroute" />
+    <item
+        android:id="@+id/nav_arp"
+        android:title="ARP" />
+</menu>
