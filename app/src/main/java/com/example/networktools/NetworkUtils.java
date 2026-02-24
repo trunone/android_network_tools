@@ -1,5 +1,10 @@
 package com.example.networktools;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.RouteInfo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,29 +47,20 @@ public class NetworkUtils {
         result.append("Traceroute to ").append(host).append("\n");
 
         for (int ttl = 1; ttl <= maxHops; ttl++) {
-            // Use ping with TTL. -c 1 (count 1), -t ttl, -W timeout
             String command = "ping -c 1 -t " + ttl + " -W " + timeout + " " + host;
             String output = executeCommand(command);
 
             if (output.contains("From")) {
-                // Parse the IP from "From 192.168.1.1: icmp_seq=1 Time to live exceeded"
-                // This is a rough heuristic.
                 String ip = parseIpFromPingOutput(output);
                 result.append(ttl).append("\t").append(ip).append("\n");
 
                 if (output.contains("1 packets transmitted, 1 received")) {
-                     // We reached the destination (though -t usually results in error if TTL expired)
-                     // If we actually reached the target, ping exits with 0 and standard output
-                     // Wait, if TTL is enough, ping succeeds.
-                     // But we want to know if we hit the target.
-                     // If the output does NOT contain "Time to live exceeded", and contains "bytes from", we reached it.
                      if (output.contains("bytes from")) {
                          result.append("Destination reached.\n");
                          break;
                      }
                 }
             } else if (output.contains("bytes from")) {
-                 // Reached destination
                  String ip = parseIpFromPingOutput(output);
                  result.append(ttl).append("\t").append(ip).append("\n");
                  break;
@@ -82,7 +78,6 @@ public class NetworkUtils {
                 int colonIndex = output.indexOf(":", fromIndex);
                 if (colonIndex > fromIndex) {
                     String sub = output.substring(fromIndex + 5, colonIndex);
-                    // Sometimes it says "From 1.2.3.4 (1.2.3.4)" or just "From 1.2.3.4"
                     return sub.trim();
                 }
             }
@@ -96,13 +91,12 @@ public class NetworkUtils {
         } catch (Exception e) {
             // ignore
         }
-        return output.trim().replace("\n", " "); // Return raw if parsing fails
+        return output.trim().replace("\n", " ");
     }
 
     public static String getArpTable() {
         StringBuilder result = new StringBuilder("ARP Table:\n");
 
-        // Method 1: /proc/net/arp
         try {
             BufferedReader br = new BufferedReader(new java.io.FileReader("/proc/net/arp"));
             String line;
@@ -114,21 +108,19 @@ public class NetworkUtils {
             result.append("Failed to read /proc/net/arp: ").append(e.getMessage()).append("\n");
         }
 
-        // Method 2: ip neigh
         result.append("\nUsing 'ip neigh':\n");
         result.append(executeCommand("ip neigh"));
 
         return result.toString();
     }
 
-    public static String getLocalNetworkInfo() {
+    public static String getLocalNetworkInfo(Context context) {
         StringBuilder result = new StringBuilder();
 
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             if (interfaces != null) {
                 for (NetworkInterface networkInterface : Collections.list(interfaces)) {
-                    // Skip loopback and down interfaces for cleaner output, or keep all
                     if (networkInterface.isLoopback() || !networkInterface.isUp()) {
                         continue;
                     }
@@ -162,8 +154,34 @@ public class NetworkUtils {
         }
 
         result.append("----------------------------\n");
-        result.append("Routes (Gateway info):\n");
-        result.append(executeCommand("ip route"));
+        result.append("Gateway Information:\n");
+        if (context != null) {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            Network activeNetwork = cm.getActiveNetwork();
+            if (activeNetwork != null) {
+                LinkProperties lp = cm.getLinkProperties(activeNetwork);
+                if (lp != null) {
+                    for (RouteInfo route : lp.getRoutes()) {
+                        if (route.isDefaultRoute()) {
+                            result.append("Default Gateway: ").append(route.getGateway().getHostAddress()).append("\n");
+                            result.append("Interface: ").append(route.getInterface()).append("\n");
+                        } else {
+                            result.append("Route: ").append(route.getDestination().toString())
+                                    .append(" via ").append(route.getGateway() != null ? route.getGateway().getHostAddress() : "link")
+                                    .append("\n");
+                        }
+                    }
+                } else {
+                    result.append("Could not retrieve link properties.\n");
+                }
+            } else {
+                result.append("No active network found.\n");
+            }
+        } else {
+             result.append("Context is null, cannot retrieve gateway info via ConnectivityManager.\n");
+             result.append("Attempting 'ip route' (may fail on modern Android):\n");
+             result.append(executeCommand("ip route"));
+        }
 
         return result.toString();
     }
@@ -182,7 +200,6 @@ public class NetworkUtils {
                 output.append(line).append("\n");
             }
 
-            // Also read error stream
             BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             while ((line = errorReader.readLine()) != null) {
                 output.append(line).append("\n");

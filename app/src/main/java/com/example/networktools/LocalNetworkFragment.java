@@ -1,5 +1,6 @@
 package com.example.networktools;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,8 +35,9 @@ public class LocalNetworkFragment extends Fragment {
 
     private void refreshInfo() {
         tvNetworkInfo.setText("Loading...");
+        Context context = getContext();
         new Thread(() -> {
-            String info = NetworkUtils.getLocalNetworkInfo();
+            String info = NetworkUtils.getLocalNetworkInfo(context);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> tvNetworkInfo.setText(info));
             }
