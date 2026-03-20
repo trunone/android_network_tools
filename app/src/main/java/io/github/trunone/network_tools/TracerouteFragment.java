@@ -1,4 +1,4 @@
-package com.example.networktools;
+package io.github.trunone.network_tools;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,40 +11,40 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class PingFragment extends Fragment {
+public class TracerouteFragment extends Fragment {
 
     private EditText etHost;
-    private EditText etCount;
+    private EditText etMaxHops;
     private EditText etTimeout;
     private TextView tvOutput;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_ping, container, false);
+        return inflater.inflate(R.layout.fragment_traceroute, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        etHost = view.findViewById(R.id.et_ping_host);
-        etCount = view.findViewById(R.id.et_ping_count);
-        etTimeout = view.findViewById(R.id.et_ping_timeout);
-        tvOutput = view.findViewById(R.id.tv_ping_output);
-        Button btnRun = view.findViewById(R.id.btn_run_ping);
+        etHost = view.findViewById(R.id.et_trace_host);
+        etMaxHops = view.findViewById(R.id.et_trace_hops);
+        etTimeout = view.findViewById(R.id.et_trace_timeout);
+        tvOutput = view.findViewById(R.id.tv_trace_output);
+        Button btnRun = view.findViewById(R.id.btn_run_trace);
 
-        btnRun.setOnClickListener(v -> runPing());
+        btnRun.setOnClickListener(v -> runTraceroute());
     }
 
-    private void runPing() {
+    private void runTraceroute() {
         String host = etHost.getText().toString();
-        String countStr = etCount.getText().toString();
+        String hopsStr = etMaxHops.getText().toString();
         String timeoutStr = etTimeout.getText().toString();
 
-        int count = 4;
+        int maxHops = 30;
         try {
-            count = Integer.parseInt(countStr);
+            maxHops = Integer.parseInt(hopsStr);
         } catch (NumberFormatException e) {
             // default
         }
@@ -56,12 +56,12 @@ public class PingFragment extends Fragment {
             // default
         }
 
-        tvOutput.setText("Pinging " + host + "...");
-        final int finalCount = count;
+        tvOutput.setText("Tracing route to " + host + "...");
+        final int finalMaxHops = maxHops;
         final int finalTimeout = timeout;
 
         new Thread(() -> {
-            String result = NetworkUtils.ping(host, finalCount, finalTimeout);
+            String result = NetworkUtils.traceroute(host, finalMaxHops, finalTimeout);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> tvOutput.setText(result));
             }
