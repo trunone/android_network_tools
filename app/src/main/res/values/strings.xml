@@ -1,9 +1,22 @@
 <resources>
     <string name="app_name">Network Tools</string>
     <string name="host_hint">Enter IP or Hostname</string>
+    <string name="local_network">Local Network</string>
     <string name="ping">Ping</string>
     <string name="traceroute">Traceroute</string>
     <string name="arp">ARP</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="refresh_arp_table">Refresh ARP Table</string>
+    <string name="refresh_info">Refresh Info</string>
+    <string name="loading">Loading...</string>
+    <string name="host_or_ip_hint">Host / IP</string>
+    <string name="count_hint">Count</string>
+    <string name="max_hops_hint">Max Hops</string>
+    <string name="timeout_sec_hint">Timeout (sec)</string>
+    <string name="default_ping_count">4</string>
+    <string name="default_timeout_sec">1</string>
+    <string name="default_trace_hops">30</string>
+    <string name="run_ping">Run Ping</string>
+    <string name="run_traceroute">Run Traceroute</string>
 </resources>
