@@ -1,4 +1,4 @@
-package com.example.networktools;
+package io.github.trunone.network_tools;
 
 import org.junit.Test;
 import static org.junit.Assert.*;

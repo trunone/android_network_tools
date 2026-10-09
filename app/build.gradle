@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.networktools'
+    namespace 'io.github.trunone.network_tools'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.networktools"
+        applicationId "io.github.trunone.network_tools"
         minSdk 24
         targetSdk 34
         versionCode 1
