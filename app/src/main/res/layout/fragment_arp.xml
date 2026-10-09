@@ -10,7 +10,7 @@
         android:id="@+id/btn_refresh_arp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Refresh ARP Table" />
+        android:text="@string/refresh_arp_table" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"

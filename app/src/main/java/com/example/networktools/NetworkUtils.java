@@ -71,27 +71,47 @@ public class NetworkUtils {
         return result.toString();
     }
 
-    private static String parseIpFromPingOutput(String output) {
+    static String parseIpFromPingOutput(String output) {
+        if (output == null) {
+            return "";
+        }
         try {
-            if (output.contains("From")) {
-                int fromIndex = output.indexOf("From");
-                int colonIndex = output.indexOf(":", fromIndex);
-                if (colonIndex > fromIndex) {
-                    String sub = output.substring(fromIndex + 5, colonIndex);
-                    return sub.trim();
-                }
+            String lower = output.toLowerCase();
+            int fromIdx = lower.indexOf("bytes from ");
+            if (fromIdx != -1) {
+                String sub = output.substring(fromIdx + 11).trim();
+                return extractIpCandidate(sub);
             }
-            if (output.contains("bytes from")) {
-                 int fromIndex = output.indexOf("bytes from");
-                 int colonIndex = output.indexOf(":", fromIndex);
-                 if (colonIndex > fromIndex) {
-                     return output.substring(fromIndex + 11, colonIndex).trim();
-                 }
+            fromIdx = output.indexOf("From ");
+            if (fromIdx != -1) {
+                String sub = output.substring(fromIdx + 5).trim();
+                return extractIpCandidate(sub);
             }
         } catch (Exception e) {
             // ignore
         }
         return output.trim().replace("\n", " ");
+    }
+
+    private static String extractIpCandidate(String sub) {
+        String[] tokens = sub.split("\\s+");
+        if (tokens.length == 0 || tokens[0].isEmpty()) {
+            return sub;
+        }
+        String firstToken = tokens[0];
+        if (firstToken.endsWith(":")) {
+            firstToken = firstToken.substring(0, firstToken.length() - 1);
+        }
+        if (tokens.length > 1 && tokens[1].startsWith("(") && tokens[1].endsWith("):")) {
+            return tokens[1].substring(1, tokens[1].length() - 2);
+        }
+        if (tokens.length > 1 && tokens[1].startsWith("(") && tokens[1].endsWith(")")) {
+            return tokens[1].substring(1, tokens[1].length() - 1);
+        }
+        if (firstToken.startsWith("(") && firstToken.endsWith(")")) {
+            firstToken = firstToken.substring(1, firstToken.length() - 1);
+        }
+        return firstToken;
     }
 
     public static String getArpTable() {
