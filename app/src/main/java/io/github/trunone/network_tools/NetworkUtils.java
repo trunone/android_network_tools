@@ -1,4 +1,4 @@
-package com.example.networktools;
+package io.github.trunone.network_tools;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
