@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_local_network"
-        android:title="Local Network" />
+        android:title="@string/local_network" />
     <item
         android:id="@+id/nav_ping"
-        android:title="Ping" />
+        android:title="@string/ping" />
     <item
         android:id="@+id/nav_traceroute"
-        android:title="Traceroute" />
+        android:title="@string/traceroute" />
     <item
         android:id="@+id/nav_arp"
-        android:title="ARP" />
+        android:title="@string/arp" />
 </menu>

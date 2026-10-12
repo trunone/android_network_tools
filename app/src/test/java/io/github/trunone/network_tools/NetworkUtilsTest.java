@@ -25,4 +25,25 @@ public class NetworkUtilsTest {
         assertEquals(expectedError, NetworkUtils.ping("google.com; ls"));
         assertEquals(expectedError, NetworkUtils.traceroute("google.com && echo 1"));
     }
+
+    @Test
+    public void testParseIpFromPingOutputIpv4() {
+        String output1 = "64 bytes from 192.168.1.1: icmp_seq=1 ttl=64 time=0.04 ms";
+        assertEquals("192.168.1.1", NetworkUtils.parseIpFromPingOutput(output1));
+
+        String output2 = "From 10.0.0.1 icmp_seq=1 Time to live exceeded";
+        assertEquals("10.0.0.1", NetworkUtils.parseIpFromPingOutput(output2));
+
+        String output3 = "64 bytes from router.local (192.168.1.254): icmp_seq=1 ttl=64 time=1.2 ms";
+        assertEquals("192.168.1.254", NetworkUtils.parseIpFromPingOutput(output3));
+    }
+
+    @Test
+    public void testParseIpFromPingOutputIpv6() {
+        String output1 = "64 bytes from 2001:db8::1: icmp_seq=1 ttl=64 time=0.04 ms";
+        assertEquals("2001:db8::1", NetworkUtils.parseIpFromPingOutput(output1));
+
+        String output2 = "From 2001:db8::1 icmp_seq=1 Time to live exceeded";
+        assertEquals("2001:db8::1", NetworkUtils.parseIpFromPingOutput(output2));
+    }
 }

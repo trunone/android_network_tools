@@ -10,7 +10,7 @@
         android:id="@+id/btn_refresh"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Refresh Info" />
+        android:text="@string/refresh_info" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
                 android:padding="12dp"
                 android:textSize="14sp"
                 android:fontFamily="monospace"
-                android:text="Loading..." />
+                android:text="@string/loading" />
         </ScrollView>
 
     </com.google.android.material.card.MaterialCardView>
