@@ -115,23 +115,163 @@ public class NetworkUtils {
     }
 
     public static String getArpTable() {
-        StringBuilder result = new StringBuilder("ARP Table:\n");
+        return getArpTable(null);
+    }
 
-        try {
-            BufferedReader br = new BufferedReader(new java.io.FileReader("/proc/net/arp"));
+    public static String getArpTable(Context context) {
+        StringBuilder result = new StringBuilder();
+        List<String> rawArpLines = new ArrayList<>();
+        boolean procArpSuccess = false;
+
+        try (BufferedReader br = new BufferedReader(new java.io.FileReader("/proc/net/arp"))) {
             String line;
             while ((line = br.readLine()) != null) {
-                result.append(line).append("\n");
+                rawArpLines.add(line);
             }
-            br.close();
-        } catch (IOException e) {
-            result.append("Failed to read /proc/net/arp: ").append(e.getMessage()).append("\n");
+            procArpSuccess = true;
+        } catch (Exception e) {
+            // /proc/net/arp is restricted on Android 10+ (API 29+) by SELinux
         }
 
-        result.append("\nUsing 'ip neigh':\n");
-        result.append(executeCommand("ip neigh"));
+        String ipNeighOutput = executeCommand("ip neigh");
+        if (ipNeighOutput == null || ipNeighOutput.trim().isEmpty() || ipNeighOutput.startsWith("Error")) {
+            String ipNeighborOutput = executeCommand("ip neighbor");
+            if (ipNeighborOutput != null && !ipNeighborOutput.trim().isEmpty() && !ipNeighborOutput.startsWith("Error")) {
+                ipNeighOutput = ipNeighborOutput;
+            }
+        }
+
+        result.append("--- NEIGHBOR / ARP CACHE ---\n\n");
+
+        boolean foundEntries = false;
+        if (procArpSuccess && rawArpLines.size() > 1) {
+            result.append("From /proc/net/arp:\n");
+            for (String l : rawArpLines) {
+                result.append(l).append("\n");
+            }
+            result.append("\n");
+            foundEntries = true;
+        }
+
+        if (ipNeighOutput != null && !ipNeighOutput.trim().isEmpty() && !ipNeighOutput.contains("Permission denied")) {
+            result.append("From 'ip neigh':\n");
+            result.append(ipNeighOutput.trim()).append("\n\n");
+            foundEntries = true;
+        }
+
+        // Active neighbor probe for gateway and local network
+        result.append("--- ACTIVE LOCAL NEIGHBORS ---\n");
+        List<String> activeNeighbors = discoverLocalNeighbors(context);
+        if (!activeNeighbors.isEmpty()) {
+            for (String neighbor : activeNeighbors) {
+                result.append(neighbor).append("\n");
+            }
+            foundEntries = true;
+        } else {
+            result.append("No active neighbors responded to local probe.\n");
+        }
+
+        if (!procArpSuccess) {
+            result.append("\nNote: On Android 10+ (API 29+), direct access to /proc/net/arp is restricted by Android OS SELinux policy for privacy protection. Active neighbor discovery above probes reachable hosts directly.\n");
+        }
 
         return result.toString();
+    }
+
+    private static List<String> discoverLocalNeighbors(Context context) {
+        List<String> neighbors = new ArrayList<>();
+        List<String> probeIps = new ArrayList<>();
+
+        // 1. Identify gateway IP
+        if (context != null) {
+            try {
+                ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                if (cm != null) {
+                    Network activeNetwork = cm.getActiveNetwork();
+                    if (activeNetwork != null) {
+                        LinkProperties lp = cm.getLinkProperties(activeNetwork);
+                        if (lp != null) {
+                            for (RouteInfo route : lp.getRoutes()) {
+                                if (route.isDefaultRoute() && route.getGateway() != null) {
+                                    String gw = route.getGateway().getHostAddress();
+                                    if (gw != null && !probeIps.contains(gw)) {
+                                        probeIps.add(gw);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        // 2. Identify local IPv4 interfaces
+        String localIp = null;
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            if (interfaces != null) {
+                for (NetworkInterface nif : Collections.list(interfaces)) {
+                    if (nif.isLoopback() || !nif.isUp()) continue;
+                    for (InterfaceAddress ifAddr : nif.getInterfaceAddresses()) {
+                        InetAddress addr = ifAddr.getAddress();
+                        if (addr instanceof java.net.Inet4Address) {
+                            localIp = addr.getHostAddress();
+                            break;
+                        }
+                    }
+                    if (localIp != null) break;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        // Add common router/gateway fallback if on standard subnet
+        if (localIp != null && localIp.contains(".")) {
+            String subnetPrefix = localIp.substring(0, localIp.lastIndexOf('.') + 1);
+            String gw1 = subnetPrefix + "1";
+            if (!probeIps.contains(gw1) && !gw1.equals(localIp)) {
+                probeIps.add(gw1);
+            }
+            String gw254 = subnetPrefix + "254";
+            if (!probeIps.contains(gw254) && !gw254.equals(localIp)) {
+                probeIps.add(gw254);
+            }
+        }
+
+        // Probe targets via ICMP/Socket
+        for (String ip : probeIps) {
+            try {
+                InetAddress addr = InetAddress.getByName(ip);
+                boolean reachable = false;
+                long start = System.currentTimeMillis();
+                try {
+                    reachable = addr.isReachable(500);
+                } catch (Exception ignored) {
+                }
+                long duration = System.currentTimeMillis() - start;
+
+                if (!reachable) {
+                    // Try connecting to a common port (e.g. 53 DNS or 80 HTTP) to trigger ARP resolution
+                    try (java.net.Socket s = new java.net.Socket()) {
+                        s.connect(new java.net.InetSocketAddress(ip, 53), 200);
+                        reachable = true;
+                    } catch (Exception e) {
+                        if (e.getMessage() != null && (e.getMessage().contains("refused") || e.getMessage().contains("reset"))) {
+                            reachable = true; // Connection refused means host is alive and sent RST
+                        }
+                    }
+                }
+
+                if (reachable) {
+                    String hostName = addr.getHostName();
+                    neighbors.add("• " + ip + (hostName != null && !hostName.equals(ip) ? " (" + hostName + ")" : "") + " [REACHABLE]");
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        return neighbors;
     }
 
     public static String getLocalNetworkInfo(Context context) {
