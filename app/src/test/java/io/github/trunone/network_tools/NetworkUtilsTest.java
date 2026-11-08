@@ -143,4 +143,98 @@ public class NetworkUtilsTest {
         assertEquals("Please enter a MAC address.", NetworkUtils.sendWakeOnLan("", "255.255.255.255", 9));
         assertTrue(NetworkUtils.sendWakeOnLan("invalid-mac", "255.255.255.255", 9).contains("Invalid MAC address"));
     }
+
+    @Test
+    public void testIpGeoValidation() {
+        assertTrue(NetworkUtils.getIpGeoInfo("invalid host; ls").contains("Invalid host or IP"));
+    }
+
+    @Test
+    public void testFormatIpGeoJson() {
+        String sampleJson = "{" +
+                "\"ip\":\"8.8.8.8\"," +
+                "\"success\":true," +
+                "\"type\":\"IPv4\"," +
+                "\"continent\":\"North America\"," +
+                "\"continent_code\":\"NA\"," +
+                "\"country\":\"United States\"," +
+                "\"country_code\":\"US\"," +
+                "\"region\":\"California\"," +
+                "\"city\":\"San Jose\"," +
+                "\"postal\":\"95025\"," +
+                "\"latitude\":37.339," +
+                "\"longitude\":-121.894," +
+                "\"connection\":{\"asn\":15169,\"isp\":\"Google LLC\",\"org\":\"Google LLC\"}," +
+                "\"timezone\":{\"id\":\"America/Los_Angeles\",\"utc\":\"-08:00\"}" +
+                "}";
+        String formatted = NetworkUtils.formatIpGeoJson(sampleJson);
+        assertTrue(formatted.contains("IP Address:   8.8.8.8"));
+        assertTrue(formatted.contains("Country:      United States (US)"));
+        assertTrue(formatted.contains("City:         San Jose"));
+        assertTrue(formatted.contains("ASN:          AS15169"));
+        assertTrue(formatted.contains("ISP:          Google LLC"));
+    }
+
+    @Test
+    public void testFormatIpGeoJsonError() {
+        String errorJson = "{\"success\":false,\"message\":\"Reserved IP address\"}";
+        String formatted = NetworkUtils.formatIpGeoJson(errorJson);
+        assertTrue(formatted.contains("Error: Reserved IP address"));
+    }
+
+    @Test
+    public void testWhoisValidation() {
+        assertEquals("Please enter a domain or IP address.", NetworkUtils.whois(null));
+        assertEquals("Please enter a domain or IP address.", NetworkUtils.whois(""));
+        assertEquals("Please enter a domain or IP address.", NetworkUtils.whois("   "));
+        assertTrue(NetworkUtils.whois("example.com; rm -rf").contains("Invalid host or IP"));
+    }
+
+    @Test
+    public void testExtractReferralServer() {
+        String whoisOutput = "domain: EXAMPLE.COM\nwhois: whois.iana.org\nstatus: active";
+        assertEquals("whois.iana.org", NetworkUtils.extractReferralServer(whoisOutput));
+
+        String whoisRefer = "domain: EXAMPLE.COM\nrefer: whois.verisign-grs.com\n";
+        assertEquals("whois.verisign-grs.com", NetworkUtils.extractReferralServer(whoisRefer));
+
+        String noRefer = "domain: EXAMPLE.COM\nstatus: active";
+        assertNull(NetworkUtils.extractReferralServer(noRefer));
+    }
+
+    @Test
+    public void testHttpInspectValidation() {
+        assertEquals("Please enter a URL or host.", NetworkUtils.httpInspect(null));
+        assertEquals("Please enter a URL or host.", NetworkUtils.httpInspect(""));
+        assertEquals("Please enter a URL or host.", NetworkUtils.httpInspect("   "));
+    }
+
+    @Test
+    public void testHttpInspectExecution() throws Exception {
+        java.net.ServerSocket serverSocket = new java.net.ServerSocket(0);
+        int port = serverSocket.getLocalPort();
+        Thread serverThread = new Thread(() -> {
+            try (java.net.Socket client = serverSocket.accept()) {
+                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(client.getInputStream()));
+                String line;
+                while ((line = in.readLine()) != null && !line.isEmpty()) {
+                    // read request headers
+                }
+                java.io.OutputStream out = client.getOutputStream();
+                String response = "HTTP/1.1 200 OK\r\nX-Test-Header: NetworkToolsRule\r\nContent-Length: 2\r\n\r\nOK";
+                out.write(response.getBytes());
+                out.flush();
+            } catch (Exception ignored) {
+            }
+        });
+        serverThread.start();
+        try {
+            String result = NetworkUtils.httpInspect("http://127.0.0.1:" + port + "/test");
+            assertTrue(result.contains("Response: 200"));
+            assertTrue(result.contains("X-Test-Header: NetworkToolsRule"));
+        } finally {
+            serverSocket.close();
+            serverThread.join(2000);
+        }
+    }
 }
