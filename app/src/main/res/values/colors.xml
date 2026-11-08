@@ -1,10 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <!-- Brand / Primary Colors -->
+    <color name="primary">#0284C7</color> <!-- Sky 600 -->
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#E0F2FE</color> <!-- Sky 100 -->
+    <color name="on_primary_container">#0369A1</color> <!-- Sky 700 -->
+
+    <!-- Secondary / Accent Colors -->
+    <color name="secondary">#0D9488</color> <!-- Teal 600 -->
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#CCFBF1</color> <!-- Teal 100 -->
+    <color name="on_secondary_container">#115E59</color>
+
+    <!-- Tertiary -->
+    <color name="tertiary">#4F46E5</color> <!-- Indigo 600 -->
+    <color name="on_tertiary">#FFFFFF</color>
+
+    <!-- Neutral / Surface Light -->
+    <color name="background_light">#F8FAFC</color> <!-- Slate 50 -->
+    <color name="surface_light">#FFFFFF</color>
+    <color name="surface_variant_light">#F1F5F9</color> <!-- Slate 100 -->
+    <color name="card_stroke_light">#E2E8F0</color> <!-- Slate 200 -->
+    <color name="on_surface_light">#0F172A</color> <!-- Slate 900 -->
+    <color name="on_surface_variant_light">#64748B</color> <!-- Slate 500 -->
+
+    <!-- Neutral / Surface Dark -->
+    <color name="primary_dark">#38BDF8</color> <!-- Sky 400 -->
+    <color name="on_primary_dark">#082F49</color>
+    <color name="primary_container_dark">#0369A1</color>
+    <color name="on_primary_container_dark">#E0F2FE</color>
+
+    <color name="secondary_dark">#2DD4BF</color> <!-- Teal 400 -->
+    <color name="on_secondary_dark">#042F2E</color>
+
+    <color name="background_dark">#0B1120</color>
+    <color name="surface_dark">#111827</color>
+    <color name="surface_variant_dark">#1F2937</color>
+    <color name="card_stroke_dark">#374151</color>
+    <color name="on_surface_dark">#F9FAFB</color>
+    <color name="on_surface_variant_dark">#9CA3AF</color>
+
+    <!-- Terminal / Console Card Display -->
+    <color name="terminal_bg">#0F172A</color> <!-- Deep Slate -->
+    <color name="terminal_text">#38BDF8</color> <!-- Cyber Sky -->
+    <color name="terminal_header">#1E293B</color>
+
+    <!-- Legacy support colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
