@@ -57,13 +57,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_local_network) {
-            loadFragment(new LocalNetworkFragment(), "Local Network");
+            loadFragment(new LocalNetworkFragment(), getString(R.string.local_network));
         } else if (id == R.id.nav_ping) {
-            loadFragment(new PingFragment(), "Ping");
+            loadFragment(new PingFragment(), getString(R.string.ping));
         } else if (id == R.id.nav_traceroute) {
-            loadFragment(new TracerouteFragment(), "Traceroute");
+            loadFragment(new TracerouteFragment(), getString(R.string.traceroute));
         } else if (id == R.id.nav_arp) {
-            loadFragment(new ArpFragment(), "ARP");
+            loadFragment(new ArpFragment(), getString(R.string.arp));
+        } else if (id == R.id.nav_dns_lookup) {
+            loadFragment(new DnsLookupFragment(), getString(R.string.dns_lookup));
+        } else if (id == R.id.nav_port_scanner) {
+            loadFragment(new PortScannerFragment(), getString(R.string.port_scanner));
+        } else if (id == R.id.nav_subnet_calculator) {
+            loadFragment(new SubnetCalculatorFragment(), getString(R.string.subnet_calculator));
+        } else if (id == R.id.nav_wake_on_lan) {
+            loadFragment(new WakeOnLanFragment(), getString(R.string.wake_on_lan));
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);

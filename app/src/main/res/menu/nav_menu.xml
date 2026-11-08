@@ -12,4 +12,16 @@
     <item
         android:id="@+id/nav_arp"
         android:title="@string/arp" />
+    <item
+        android:id="@+id/nav_dns_lookup"
+        android:title="@string/dns_lookup" />
+    <item
+        android:id="@+id/nav_port_scanner"
+        android:title="@string/port_scanner" />
+    <item
+        android:id="@+id/nav_subnet_calculator"
+        android:title="@string/subnet_calculator" />
+    <item
+        android:id="@+id/nav_wake_on_lan"
+        android:title="@string/wake_on_lan" />
 </menu>
