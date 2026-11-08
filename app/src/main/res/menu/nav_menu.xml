@@ -2,26 +2,34 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_local_network"
+        android:icon="@drawable/ic_nav_local_network"
         android:title="@string/local_network" />
     <item
         android:id="@+id/nav_ping"
+        android:icon="@drawable/ic_nav_ping"
         android:title="@string/ping" />
     <item
         android:id="@+id/nav_traceroute"
+        android:icon="@drawable/ic_nav_traceroute"
         android:title="@string/traceroute" />
     <item
         android:id="@+id/nav_arp"
+        android:icon="@drawable/ic_nav_arp"
         android:title="@string/arp" />
     <item
         android:id="@+id/nav_dns_lookup"
+        android:icon="@drawable/ic_nav_dns_lookup"
         android:title="@string/dns_lookup" />
     <item
         android:id="@+id/nav_port_scanner"
+        android:icon="@drawable/ic_nav_port_scanner"
         android:title="@string/port_scanner" />
     <item
         android:id="@+id/nav_subnet_calculator"
+        android:icon="@drawable/ic_nav_subnet_calculator"
         android:title="@string/subnet_calculator" />
     <item
         android:id="@+id/nav_wake_on_lan"
+        android:icon="@drawable/ic_nav_wake_on_lan"
         android:title="@string/wake_on_lan" />
 </menu>
