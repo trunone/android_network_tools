@@ -203,6 +203,21 @@ public class NetworkUtilsTest {
     }
 
     @Test
+    public void testArpTableExecution() {
+        String result = NetworkUtils.getArpTable();
+        assertNotNull(result);
+        assertTrue(result.contains("NEIGHBOR / ARP CACHE"));
+        assertTrue(result.contains("ACTIVE LOCAL NEIGHBORS"));
+    }
+
+    @Test
+    public void testArpTableWithContextNull() {
+        String result = NetworkUtils.getArpTable(null);
+        assertNotNull(result);
+        assertTrue(result.contains("NEIGHBOR / ARP CACHE"));
+    }
+
+    @Test
     public void testHttpInspectValidation() {
         assertEquals("Please enter a URL or host.", NetworkUtils.httpInspect(null));
         assertEquals("Please enter a URL or host.", NetworkUtils.httpInspect(""));
