@@ -406,6 +406,209 @@ public class NetworkUtils {
         }
     }
 
+    public static String getIpGeoInfo(String query) {
+        String target = (query == null) ? "" : query.trim();
+        if (!target.isEmpty() && !isValidHost(target)) {
+            return "Invalid host or IP. Only alphanumeric characters, dots, hyphens, and colons are allowed.";
+        }
+
+        String urlStr = target.isEmpty() ? "https://ipwho.is/" : "https://ipwho.is/" + target;
+        try {
+            java.net.URL url = new java.net.URL(urlStr);
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(6000);
+            conn.setReadTimeout(6000);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 NetworkTools/1.0");
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode != 200) {
+                return "HTTP Error: Received response code " + responseCode;
+            }
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            return formatIpGeoJson(response.toString());
+        } catch (Exception e) {
+            return "Failed to fetch IP Geolocation information: " + e.getMessage();
+        }
+    }
+
+    static String formatIpGeoJson(String jsonStr) {
+        try {
+            org.json.JSONObject obj = new org.json.JSONObject(jsonStr);
+            if (!obj.optBoolean("success", true) && obj.has("message")) {
+                return "Error: " + obj.optString("message");
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("IP Address:   ").append(obj.optString("ip", "N/A")).append("\n");
+            sb.append("Type:         ").append(obj.optString("type", "N/A")).append("\n");
+            sb.append("Continent:    ").append(obj.optString("continent", "N/A"))
+              .append(" (").append(obj.optString("continent_code", "")).append(")\n");
+            sb.append("Country:      ").append(obj.optString("country", "N/A"))
+              .append(" (").append(obj.optString("country_code", "")).append(")\n");
+            sb.append("Region/State: ").append(obj.optString("region", "N/A")).append("\n");
+            sb.append("City:         ").append(obj.optString("city", "N/A")).append("\n");
+            sb.append("Postal Code:  ").append(obj.optString("postal", "N/A")).append("\n");
+            sb.append("Coordinates:  ").append(obj.optDouble("latitude", 0.0))
+              .append(", ").append(obj.optDouble("longitude", 0.0)).append("\n");
+
+            org.json.JSONObject conn = obj.optJSONObject("connection");
+            if (conn != null) {
+                sb.append("ASN:          AS").append(conn.opt("asn")).append("\n");
+                sb.append("ISP:          ").append(conn.optString("isp", "N/A")).append("\n");
+                sb.append("Organization: ").append(conn.optString("org", "N/A")).append("\n");
+            }
+
+            org.json.JSONObject tz = obj.optJSONObject("timezone");
+            if (tz != null) {
+                sb.append("Timezone:     ").append(tz.optString("id", "N/A"))
+                  .append(" (").append(tz.optString("utc", "")).append(")\n");
+            }
+
+            return sb.toString();
+        } catch (Exception e) {
+            return jsonStr;
+        }
+    }
+
+    public static String whois(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return "Please enter a domain or IP address.";
+        }
+        String cleanQuery = query.trim().toLowerCase();
+        if (cleanQuery.startsWith("http://")) cleanQuery = cleanQuery.substring(7);
+        if (cleanQuery.startsWith("https://")) cleanQuery = cleanQuery.substring(8);
+        int slashIdx = cleanQuery.indexOf('/');
+        if (slashIdx != -1) cleanQuery = cleanQuery.substring(0, slashIdx);
+
+        if (!isValidHost(cleanQuery)) {
+            return "Invalid host or IP. Only alphanumeric characters, dots, hyphens, and colons are allowed.";
+        }
+
+        // Determine default WHOIS server
+        String whoisServer = "whois.iana.org";
+        if (cleanQuery.matches(".*\\.(com|net)$")) {
+            whoisServer = "whois.verisign-grs.com";
+        } else if (cleanQuery.matches(".*\\.org$")) {
+            whoisServer = "whois.pir.org";
+        } else if (cleanQuery.matches(".*\\.io$")) {
+            whoisServer = "whois.nic.io";
+        } else if (cleanQuery.matches("^[0-9.]+$") || cleanQuery.contains(":")) {
+            whoisServer = "whois.arin.net";
+        }
+
+        String response = queryWhoisServer(whoisServer, cleanQuery);
+        // Check for referral server
+        String referralServer = extractReferralServer(response);
+        if (referralServer != null && !referralServer.equalsIgnoreCase(whoisServer)) {
+            String referralResponse = queryWhoisServer(referralServer, cleanQuery);
+            if (referralResponse != null && !referralResponse.trim().isEmpty() && !referralResponse.startsWith("Error")) {
+                return "Query: " + cleanQuery + " (Server: " + referralServer + ")\n\n" + referralResponse;
+            }
+        }
+
+        return "Query: " + cleanQuery + " (Server: " + whoisServer + ")\n\n" + response;
+    }
+
+    static String extractReferralServer(String whoisResponse) {
+        if (whoisResponse == null) return null;
+        for (String line : whoisResponse.split("\n")) {
+            String lower = line.toLowerCase();
+            if (lower.startsWith("whois:") || lower.startsWith("refer:") || lower.startsWith("registrant whois server:")) {
+                int colonIdx = line.indexOf(':');
+                if (colonIdx != -1) {
+                    String server = line.substring(colonIdx + 1).trim();
+                    if (server.startsWith("http://") || server.startsWith("https://")) {
+                        continue;
+                    }
+                    if (isValidHost(server)) {
+                        return server;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static String queryWhoisServer(String server, String query) {
+        StringBuilder sb = new StringBuilder();
+        try (java.net.Socket socket = new java.net.Socket()) {
+            socket.connect(new java.net.InetSocketAddress(server, 43), 7000);
+            socket.setSoTimeout(7000);
+
+            java.io.OutputStream out = socket.getOutputStream();
+            out.write((query + "\r\n").getBytes());
+            out.flush();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "Error querying WHOIS server (" + server + "): " + e.getMessage();
+        }
+    }
+
+    public static String httpInspect(String urlInput) {
+        if (urlInput == null || urlInput.trim().isEmpty()) {
+            return "Please enter a URL or host.";
+        }
+        String cleanUrl = urlInput.trim();
+        if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+            cleanUrl = "https://" + cleanUrl;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Inspecting: ").append(cleanUrl).append("\n\n");
+        long startTime = System.currentTimeMillis();
+
+        try {
+            java.net.URL url = new java.net.URL(cleanUrl);
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setInstanceFollowRedirects(false);
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Android NetworkTools/1.0)");
+
+            conn.connect();
+            long latency = System.currentTimeMillis() - startTime;
+            int responseCode = conn.getResponseCode();
+            String responseMessage = conn.getResponseMessage();
+
+            sb.append("Response: ").append(responseCode).append(" ").append(responseMessage != null ? responseMessage : "").append("\n");
+            sb.append("Latency:  ").append(latency).append(" ms\n\n");
+            sb.append("--- Headers ---\n");
+
+            java.util.Map<String, List<String>> headers = conn.getHeaderFields();
+            for (java.util.Map.Entry<String, List<String>> entry : headers.entrySet()) {
+                String key = entry.getKey();
+                for (String val : entry.getValue()) {
+                    if (key == null) {
+                        sb.append(val).append("\n");
+                    } else {
+                        sb.append(key).append(": ").append(val).append("\n");
+                    }
+                }
+            }
+
+            conn.disconnect();
+            return sb.toString();
+        } catch (Exception e) {
+            return sb.append("Request failed: ").append(e.getMessage()).toString();
+        }
+    }
+
     private static boolean isValidHost(String host) {
         return host.matches("^[a-zA-Z0-9.:-]+$");
     }

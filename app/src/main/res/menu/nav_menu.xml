@@ -32,4 +32,16 @@
         android:id="@+id/nav_wake_on_lan"
         android:icon="@drawable/ic_nav_wake_on_lan"
         android:title="@string/wake_on_lan" />
+    <item
+        android:id="@+id/nav_ip_geo"
+        android:icon="@drawable/ic_nav_ip_geo"
+        android:title="@string/ip_geolocation" />
+    <item
+        android:id="@+id/nav_whois"
+        android:icon="@drawable/ic_nav_whois"
+        android:title="@string/whois_lookup" />
+    <item
+        android:id="@+id/nav_http_inspect"
+        android:icon="@drawable/ic_nav_http"
+        android:title="@string/http_inspect" />
 </menu>

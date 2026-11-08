@@ -9,6 +9,9 @@
     <string name="port_scanner">Port Scanner</string>
     <string name="subnet_calculator">Subnet Calculator</string>
     <string name="wake_on_lan">Wake-on-LAN</string>
+    <string name="ip_geolocation">IP Geolocation</string>
+    <string name="whois_lookup">WHOIS Lookup</string>
+    <string name="http_inspect">HTTP Headers</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="refresh_arp_table">Refresh ARP Table</string>
@@ -42,4 +45,10 @@
     <string name="run_port_scan">Scan Ports</string>
     <string name="calculate_subnet">Calculate Subnet</string>
     <string name="send_wake_on_lan">Send Magic Packet</string>
+    <string name="run_ip_geo">Lookup IP / Geo</string>
+    <string name="run_whois">Lookup WHOIS</string>
+    <string name="run_http_inspect">Inspect HTTP</string>
+    <string name="ip_geo_hint">Leave blank for your public IP, or enter IP/Host</string>
+    <string name="whois_hint">Domain or IP (e.g. example.com, 8.8.8.8)</string>
+    <string name="http_url_hint">URL or Host (e.g. https://example.com)</string>
 </resources>

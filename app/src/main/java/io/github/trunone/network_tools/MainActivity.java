@@ -72,6 +72,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             loadFragment(new SubnetCalculatorFragment(), getString(R.string.subnet_calculator));
         } else if (id == R.id.nav_wake_on_lan) {
             loadFragment(new WakeOnLanFragment(), getString(R.string.wake_on_lan));
+        } else if (id == R.id.nav_ip_geo) {
+            loadFragment(new PublicIpFragment(), getString(R.string.ip_geolocation));
+        } else if (id == R.id.nav_whois) {
+            loadFragment(new WhoisFragment(), getString(R.string.whois_lookup));
+        } else if (id == R.id.nav_http_inspect) {
+            loadFragment(new HttpHeaderFragment(), getString(R.string.http_inspect));
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
