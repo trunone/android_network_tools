@@ -32,4 +32,36 @@
         android:id="@+id/nav_wake_on_lan"
         android:icon="@drawable/ic_nav_wake_on_lan"
         android:title="@string/wake_on_lan" />
+    <item
+        android:id="@+id/nav_ip_geo"
+        android:icon="@drawable/ic_nav_ip_geo"
+        android:title="@string/ip_geolocation" />
+    <item
+        android:id="@+id/nav_whois"
+        android:icon="@drawable/ic_nav_whois"
+        android:title="@string/whois_lookup" />
+    <item
+        android:id="@+id/nav_http_inspect"
+        android:icon="@drawable/ic_nav_http"
+        android:title="@string/http_inspect" />
+    <item
+        android:id="@+id/nav_ssl_cert"
+        android:icon="@drawable/ic_nav_ssl_cert"
+        android:title="@string/ssl_cert" />
+    <item
+        android:id="@+id/nav_dns_records"
+        android:icon="@drawable/ic_nav_dns_records"
+        android:title="@string/dns_records" />
+    <item
+        android:id="@+id/nav_mac_lookup"
+        android:icon="@drawable/ic_nav_mac_lookup"
+        android:title="@string/mac_lookup" />
+    <item
+        android:id="@+id/nav_speed_test"
+        android:icon="@drawable/ic_nav_speed_test"
+        android:title="@string/speed_test" />
+    <item
+        android:id="@+id/nav_ssdp_discovery"
+        android:icon="@drawable/ic_nav_ssdp"
+        android:title="@string/ssdp_discovery" />
 </menu>

@@ -143,4 +143,189 @@ public class NetworkUtilsTest {
         assertEquals("Please enter a MAC address.", NetworkUtils.sendWakeOnLan("", "255.255.255.255", 9));
         assertTrue(NetworkUtils.sendWakeOnLan("invalid-mac", "255.255.255.255", 9).contains("Invalid MAC address"));
     }
+
+    @Test
+    public void testIpGeoValidation() {
+        assertTrue(NetworkUtils.getIpGeoInfo("invalid host; ls").contains("Invalid host or IP"));
+    }
+
+    @Test
+    public void testFormatIpGeoJson() {
+        String sampleJson = "{" +
+                "\"ip\":\"8.8.8.8\"," +
+                "\"success\":true," +
+                "\"type\":\"IPv4\"," +
+                "\"continent\":\"North America\"," +
+                "\"continent_code\":\"NA\"," +
+                "\"country\":\"United States\"," +
+                "\"country_code\":\"US\"," +
+                "\"region\":\"California\"," +
+                "\"city\":\"San Jose\"," +
+                "\"postal\":\"95025\"," +
+                "\"latitude\":37.339," +
+                "\"longitude\":-121.894," +
+                "\"connection\":{\"asn\":15169,\"isp\":\"Google LLC\",\"org\":\"Google LLC\"}," +
+                "\"timezone\":{\"id\":\"America/Los_Angeles\",\"utc\":\"-08:00\"}" +
+                "}";
+        String formatted = NetworkUtils.formatIpGeoJson(sampleJson);
+        assertTrue(formatted.contains("IP Address:   8.8.8.8"));
+        assertTrue(formatted.contains("Country:      United States (US)"));
+        assertTrue(formatted.contains("City:         San Jose"));
+        assertTrue(formatted.contains("ASN:          AS15169"));
+        assertTrue(formatted.contains("ISP:          Google LLC"));
+    }
+
+    @Test
+    public void testFormatIpGeoJsonError() {
+        String errorJson = "{\"success\":false,\"message\":\"Reserved IP address\"}";
+        String formatted = NetworkUtils.formatIpGeoJson(errorJson);
+        assertTrue(formatted.contains("Error: Reserved IP address"));
+    }
+
+    @Test
+    public void testWhoisValidation() {
+        assertEquals("Please enter a domain or IP address.", NetworkUtils.whois(null));
+        assertEquals("Please enter a domain or IP address.", NetworkUtils.whois(""));
+        assertEquals("Please enter a domain or IP address.", NetworkUtils.whois("   "));
+        assertTrue(NetworkUtils.whois("example.com; rm -rf").contains("Invalid host or IP"));
+    }
+
+    @Test
+    public void testExtractReferralServer() {
+        String whoisOutput = "domain: EXAMPLE.COM\nwhois: whois.iana.org\nstatus: active";
+        assertEquals("whois.iana.org", NetworkUtils.extractReferralServer(whoisOutput));
+
+        String whoisRefer = "domain: EXAMPLE.COM\nrefer: whois.verisign-grs.com\n";
+        assertEquals("whois.verisign-grs.com", NetworkUtils.extractReferralServer(whoisRefer));
+
+        String noRefer = "domain: EXAMPLE.COM\nstatus: active";
+        assertNull(NetworkUtils.extractReferralServer(noRefer));
+    }
+
+    @Test
+    public void testArpTableExecution() {
+        String result = NetworkUtils.getArpTable();
+        assertNotNull(result);
+        assertTrue(result.contains("NEIGHBOR / ARP CACHE"));
+        assertTrue(result.contains("ACTIVE LOCAL NEIGHBORS"));
+    }
+
+    @Test
+    public void testArpTableWithContextNull() {
+        String result = NetworkUtils.getArpTable(null);
+        assertNotNull(result);
+        assertTrue(result.contains("NEIGHBOR / ARP CACHE"));
+    }
+
+    @Test
+    public void testHttpInspectValidation() {
+        assertEquals("Please enter a URL or host.", NetworkUtils.httpInspect(null));
+        assertEquals("Please enter a URL or host.", NetworkUtils.httpInspect(""));
+        assertEquals("Please enter a URL or host.", NetworkUtils.httpInspect("   "));
+    }
+
+    @Test
+    public void testHttpInspectExecution() throws Exception {
+        java.net.ServerSocket serverSocket = new java.net.ServerSocket(0);
+        int port = serverSocket.getLocalPort();
+        Thread serverThread = new Thread(() -> {
+            try (java.net.Socket client = serverSocket.accept()) {
+                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(client.getInputStream()));
+                String line;
+                while ((line = in.readLine()) != null && !line.isEmpty()) {
+                    // read request headers
+                }
+                java.io.OutputStream out = client.getOutputStream();
+                String response = "HTTP/1.1 200 OK\r\nX-Test-Header: NetworkToolsRule\r\nContent-Length: 2\r\n\r\nOK";
+                out.write(response.getBytes());
+                out.flush();
+            } catch (Exception ignored) {
+            }
+        });
+        serverThread.start();
+        try {
+            String result = NetworkUtils.httpInspect("http://127.0.0.1:" + port + "/test");
+            assertTrue(result.contains("Response: 200"));
+            assertTrue(result.contains("X-Test-Header: NetworkToolsRule"));
+        } finally {
+            serverSocket.close();
+            serverThread.join(2000);
+        }
+    }
+
+    @Test
+    public void testSslCertValidation() {
+        assertEquals("Please enter a host.", NetworkUtils.getSslCertificateInfo(null, 443, 1000));
+        assertEquals("Please enter a host.", NetworkUtils.getSslCertificateInfo("", 443, 1000));
+        assertEquals("Please enter a host.", NetworkUtils.getSslCertificateInfo("   ", 443, 1000));
+        assertTrue(NetworkUtils.getSslCertificateInfo("bad host; ls", 443, 1000).contains("Invalid host"));
+    }
+
+    @Test
+    public void testDnsRecordsValidation() {
+        assertEquals("Please enter a host or domain name.", NetworkUtils.queryDnsRecords(null, "A"));
+        assertEquals("Please enter a host or domain name.", NetworkUtils.queryDnsRecords("", "A"));
+        assertTrue(NetworkUtils.queryDnsRecords("bad host; ls", "A").contains("Invalid host"));
+    }
+
+    @Test
+    public void testParseDnsJsonResponse() {
+        String json = "{" +
+                "\"Status\":0," +
+                "\"TC\":false," +
+                "\"RD\":true," +
+                "\"RA\":true," +
+                "\"Question\":[{\"name\":\"google.com.\",\"type\":1}]," +
+                "\"Answer\":[{\"name\":\"google.com.\",\"type\":1,\"TTL\":300,\"data\":\"142.250.190.46\"}]" +
+                "}";
+        String formatted = NetworkUtils.parseDnsJsonResponse("google.com", "A", json);
+        assertTrue(formatted.contains("Status: NOERROR (Success)"));
+        assertTrue(formatted.contains("Answers (1):"));
+        assertTrue(formatted.contains("• A"));
+        assertTrue(formatted.contains("TTL: 300s"));
+        assertTrue(formatted.contains("Data: 142.250.190.46"));
+    }
+
+    @Test
+    public void testExtractOuiPrefix() {
+        assertNull(NetworkUtils.extractOuiPrefix(null));
+        assertNull(NetworkUtils.extractOuiPrefix(""));
+        assertNull(NetworkUtils.extractOuiPrefix("12:34"));
+        assertEquals("00:1A:2B", NetworkUtils.extractOuiPrefix("00:1a:2b:3c:4d:5e"));
+        assertEquals("B8:27:EB", NetworkUtils.extractOuiPrefix("b8-27-eb-11-22-33"));
+        assertEquals("00:15:5D", NetworkUtils.extractOuiPrefix("00155D123456"));
+    }
+
+    @Test
+    public void testLookupMacVendorBuiltIn() {
+        String result = NetworkUtils.lookupMacVendor("B8:27:EB:AA:BB:CC");
+        assertTrue(result.contains("Raspberry Pi Foundation"));
+        assertTrue(result.contains("Built-in IEEE OUI Database"));
+
+        String appleResult = NetworkUtils.lookupMacVendor("00-1E-C2-00-11-22");
+        assertTrue(appleResult.contains("Apple, Inc."));
+
+        String espressifResult = NetworkUtils.lookupMacVendor("30AEA4123456");
+        assertTrue(espressifResult.contains("Espressif Systems"));
+    }
+
+    @Test
+    public void testLookupMacVendorInvalid() {
+        assertEquals("Please enter a MAC address or OUI prefix.", NetworkUtils.lookupMacVendor(null));
+        assertEquals("Please enter a MAC address or OUI prefix.", NetworkUtils.lookupMacVendor(""));
+        assertTrue(NetworkUtils.lookupMacVendor("12:34").contains("Invalid input"));
+    }
+
+    @Test
+    public void testExtractSsdpHeader() {
+        String resp = "HTTP/1.1 200 OK\r\n" +
+                "LOCATION: http://192.168.1.1:49152/description.xml\r\n" +
+                "SERVER: Linux/2.6.30 UPnP/1.0 Sonos/56.0\r\n" +
+                "ST: urn:schemas-upnp-org:device:ZonePlayer:1\r\n\r\n";
+
+        assertEquals("http://192.168.1.1:49152/description.xml", NetworkUtils.extractSsdpHeader(resp, "LOCATION"));
+        assertEquals("Linux/2.6.30 UPnP/1.0 Sonos/56.0", NetworkUtils.extractSsdpHeader(resp, "SERVER"));
+        assertEquals("urn:schemas-upnp-org:device:ZonePlayer:1", NetworkUtils.extractSsdpHeader(resp, "ST"));
+        assertNull(NetworkUtils.extractSsdpHeader(resp, "NON_EXISTENT_HEADER"));
+    }
 }

@@ -34,9 +34,10 @@ public class ArpFragment extends Fragment {
     }
 
     private void loadArpTable() {
-        tvOutput.setText("Loading ARP table...");
+        tvOutput.setText("Loading ARP table & probing local neighbors...");
+        android.content.Context context = getContext() != null ? getContext().getApplicationContext() : null;
         new Thread(() -> {
-            String result = NetworkUtils.getArpTable();
+            String result = NetworkUtils.getArpTable(context);
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> tvOutput.setText(result));
             }

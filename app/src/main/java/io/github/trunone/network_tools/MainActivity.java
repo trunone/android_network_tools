@@ -72,6 +72,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             loadFragment(new SubnetCalculatorFragment(), getString(R.string.subnet_calculator));
         } else if (id == R.id.nav_wake_on_lan) {
             loadFragment(new WakeOnLanFragment(), getString(R.string.wake_on_lan));
+        } else if (id == R.id.nav_ip_geo) {
+            loadFragment(new PublicIpFragment(), getString(R.string.ip_geolocation));
+        } else if (id == R.id.nav_whois) {
+            loadFragment(new WhoisFragment(), getString(R.string.whois_lookup));
+        } else if (id == R.id.nav_http_inspect) {
+            loadFragment(new HttpHeaderFragment(), getString(R.string.http_inspect));
+        } else if (id == R.id.nav_ssl_cert) {
+            loadFragment(new SslCertFragment(), getString(R.string.ssl_cert));
+        } else if (id == R.id.nav_dns_records) {
+            loadFragment(new DnsRecordsFragment(), getString(R.string.dns_records));
+        } else if (id == R.id.nav_mac_lookup) {
+            loadFragment(new MacLookupFragment(), getString(R.string.mac_lookup));
+        } else if (id == R.id.nav_speed_test) {
+            loadFragment(new SpeedTestFragment(), getString(R.string.speed_test));
+        } else if (id == R.id.nav_ssdp_discovery) {
+            loadFragment(new SsdpDiscoveryFragment(), getString(R.string.ssdp_discovery));
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);

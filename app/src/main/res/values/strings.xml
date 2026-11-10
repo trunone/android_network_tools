@@ -9,6 +9,9 @@
     <string name="port_scanner">Port Scanner</string>
     <string name="subnet_calculator">Subnet Calculator</string>
     <string name="wake_on_lan">Wake-on-LAN</string>
+    <string name="ip_geolocation">IP Geolocation</string>
+    <string name="whois_lookup">WHOIS Lookup</string>
+    <string name="http_inspect">HTTP Headers</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="refresh_arp_table">Refresh ARP Table</string>
@@ -42,4 +45,24 @@
     <string name="run_port_scan">Scan Ports</string>
     <string name="calculate_subnet">Calculate Subnet</string>
     <string name="send_wake_on_lan">Send Magic Packet</string>
+    <string name="run_ip_geo">Lookup IP / Geo</string>
+    <string name="run_whois">Lookup WHOIS</string>
+    <string name="run_http_inspect">Inspect HTTP</string>
+    <string name="ip_geo_hint">Leave blank for your public IP, or enter IP/Host</string>
+    <string name="whois_hint">Domain or IP (e.g. example.com, 8.8.8.8)</string>
+    <string name="http_url_hint">URL or Host (e.g. https://example.com)</string>
+    <string name="ssl_cert">SSL / TLS Certificate</string>
+    <string name="run_ssl_inspect">Inspect Certificate</string>
+    <string name="default_ssl_port">443</string>
+    <string name="dns_records">DNS Records (DoH)</string>
+    <string name="run_dns_records">Query Records</string>
+    <string name="dns_record_type_hint">Record Type (A, AAAA, MX, TXT, NS, CNAME, SOA)</string>
+    <string name="default_dns_type">A</string>
+    <string name="mac_lookup">MAC / OUI Lookup</string>
+    <string name="run_mac_lookup">Lookup Vendor</string>
+    <string name="mac_lookup_hint">MAC or OUI (e.g. B8:27:EB or 00-1A-2B)</string>
+    <string name="speed_test">Speed &amp; Latency Test</string>
+    <string name="run_speed_test">Start Speed Test</string>
+    <string name="ssdp_discovery">SSDP / UPnP Discovery</string>
+    <string name="run_ssdp_discovery">Discover Devices</string>
 </resources>
